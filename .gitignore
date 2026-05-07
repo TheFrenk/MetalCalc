@@ -1,0 +1,89 @@
+# === OS ===
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# === IDE / Editor ===
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+
+# === Backend (Go) ===
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/backend/*.out
+/backend/server
+/backend/cmd/api/api
+/backend/cmd/api/__debug_bin
+/backend/cmd/api/main
+
+# Test & coverage
+*.test
+*.tmp
+*.cover
+*.cov
+coverage.out
+coverage.html
+/backend/coverage.out
+
+# Go workspace
+go.work
+go.work.sum
+
+# Dependency directories (if vendored)
+/backend/vendor/
+
+# Environment
+/backend/.env
+/backend/.env.local
+/backend/.env.*.local
+
+# === Frontend (Node / Vue / Vite) ===
+/frontend/node_modules/
+/frontend/.pnpm-store/
+/frontend/dist/
+/frontend/dist-ssr/
+/frontend/*.local
+
+# Log files
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/pnpm-debug.log*
+/frontend/lerna-debug.log*
+
+# Test & coverage
+/frontend/coverage/
+/frontend/.nyc_output/
+
+# Cypress / Playwright
+/frontend/cypress/videos/
+/frontend/cypress/screenshots/
+/frontend/test-results/
+/frontend/playwright-report/
+
+# Vite / Vue
+/frontend/.vite/
+/frontend/*.tsbuildinfo
+
+# === Docker ===
+*.env
+.env
+!.env.example
+
+# === General ===
+*.log
+*.bak
+*.tmp
+temp/
+tmp/
