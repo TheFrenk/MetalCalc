@@ -1,5 +1,5 @@
 {
-  "name": "package",
+  "name": "metal-calc-frontend",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,9 +11,16 @@
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
-    "vue": "^3.5.32"
+    "autoprefixer": "^10.5.0",
+    "axios": "^1.16.0",
+    "pinia": "^3.0.4",
+    "postcss": "^8.5.14",
+    "tailwindcss": "^4.2.4",
+    "vue": "^3.5.32",
+    "vue-router": "^5.0.6"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.2.4",
     "@tsconfig/node24": "^24.0.4",
     "@types/node": "^24.12.2",
     "@vitejs/plugin-vue": "^6.0.6",
