@@ -31,6 +31,8 @@ func main() {
 	})
 
 	r.Post("/api/v1/forging", handlers.ForgingHandler)
+	r.Post("/api/v1/forging/pdf", handlers.ForgingPDFHandler)
+
 	r.Get("/api/v1/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"status":"ok"}`))

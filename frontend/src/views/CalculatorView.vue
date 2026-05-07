@@ -53,9 +53,14 @@
           <p class="text-xs text-gray-500 mt-1">Скорость движения пуансона / молота</p>
         </div>
       </div>
-      <button type="submit" :disabled="store.loading" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50">
-        {{ store.loading ? 'Расчет...' : 'Рассчитать' }}
-      </button>
+      <div class="flex gap-3">
+        <button type="submit" :disabled="store.loading" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50">
+          {{ store.loading ? 'Расчет...' : 'Рассчитать' }}
+        </button>
+        <button type="button" @click="onDownloadPDF" :disabled="!store.result || pdfLoading" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50">
+          {{ pdfLoading ? 'Генерация...' : 'Скачать PDF' }}
+        </button>
+      </div>
     </form>
 
     <div v-if="store.error" class="bg-red-50 text-red-700 p-4 rounded border border-red-200">
@@ -116,11 +121,13 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import {reactive, ref} from 'vue'
 import { calculateForging, type ForgeRequest } from '../api/calculations'
 import { useCalcStore } from '../stores/calculation'
+import { downloadForgingPDF } from "../api/pdf.ts";
 
 const store = useCalcStore()
+const pdfLoading = ref(false)
 
 const form = reactive<ForgeRequest>({
   material: 'steel',
@@ -148,6 +155,17 @@ async function onSubmit() {
     store.setError(e.response?.data?.error || 'Ошибка сервера')
   } finally {
     store.loading = false
+  }
+}
+
+async function onDownloadPDF() {
+  pdfLoading.value = true
+  try {
+    await downloadForgingPDF(form)
+  } catch (e: any) {
+    store.setError(e.response?.data?.error || 'Ошибка генерации PDF')
+  } finally {
+    pdfLoading.value = false
   }
 }
 </script>
