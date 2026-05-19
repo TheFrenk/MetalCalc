@@ -20,6 +20,18 @@ type ForgeRequest struct {
 	DeformationSpeed float64 `json:"deformation_speed"`
 }
 
+var materialNames = map[string]string{
+	"steel":    "Сталь",
+	"aluminum": "Алюміній",
+	"copper":   "Мідь",
+	"titanium": "Титан",
+}
+
+var shapeNames = map[string]string{
+	"cylinder":  "Циліндр",
+	"rectangle": "Прямокутник",
+}
+
 func ForgingPDFHandler(w http.ResponseWriter, r *http.Request) {
 	var req ForgeRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -36,32 +48,32 @@ func ForgingPDFHandler(w http.ResponseWriter, r *http.Request) {
 	result := forging.Calculate(params)
 
 	reportData := pdf.ReportData{
-		Title: "Forging Proccess Calculation Report",
+		Title: "Звіт розрахунку процесу кування",
 		Params: []pdf.ParamRow{
-			{Label: "Material", Value: req.Material},
-			{Label: "Shape", Value: req.Shape},
-			{Label: "Dimension A", Value: fmt.Sprintf("%.1f", req.DimensionA), Unit: "mm"},
-			{Label: "Dimension B", Value: fmt.Sprintf("%.1f", req.DimensionB), Unit: "mm"},
-			{Label: "Initial Height", Value: fmt.Sprintf("%.1f", req.InitialHeight), Unit: "mm"},
-			{Label: "Final Height", Value: fmt.Sprintf("%.1f", req.FinalHeight), Unit: "mm"},
-			{Label: "Temperature", Value: fmt.Sprintf("%.0f", req.Temperature), Unit: "°C"},
-			{Label: "Friction Coeff", Value: fmt.Sprintf("%.2f", req.Temperature)},
-			{Label: "Deformation Speed", Value: fmt.Sprintf("%.2f", req.DeformationSpeed), Unit: "mm/s"},
+			{Label: "Матеріал", Value: translateMaterial(req.Material)},
+			{Label: "Форма", Value: translateShape(req.Shape)},
+			{Label: "Розмір A", Value: fmt.Sprintf("%.1f", req.DimensionA), Unit: "мм"},
+			{Label: "Розмір B", Value: fmt.Sprintf("%.1f", req.DimensionB), Unit: "мм"},
+			{Label: "Початкова висота", Value: fmt.Sprintf("%.1f", req.InitialHeight), Unit: "мм"},
+			{Label: "Кінцева висота", Value: fmt.Sprintf("%.1f", req.FinalHeight), Unit: "мм"},
+			{Label: "Температура", Value: fmt.Sprintf("%.0f", req.Temperature), Unit: "°C"},
+			{Label: "Коеф. тертя", Value: fmt.Sprintf("%.2f", req.FrictionCoeff)},
+			{Label: "Швидкість деформації", Value: fmt.Sprintf("%.2f", req.DeformationSpeed), Unit: "мм/с"},
 		},
 		Results: []pdf.ParamRow{
-			{Label: "Forging Force", Value: fmt.Sprintf("%.2f", result.ForgingForce), Unit: "N"},
-			{Label: "Forging Pressure", Value: fmt.Sprintf("%.2f", result.ForgingPressure), Unit: "MPa"},
-			{Label: "Work Done", Value: fmt.Sprintf("%.2f", result.WorkDone), Unit: "J"},
-			{Label: "Power", Value: fmt.Sprintf("%.2f", result.Power), Unit: "kW"},
-			{Label: "Deformation Speed", Value: fmt.Sprintf("%.4f", result.DeformationSpeed), Unit: "s⁻¹"},
-			{Label: "Strain Degree", Value: fmt.Sprintf("%.4f", result.StrainDegree)},
-			{Label: "Workpiece Mass", Value: fmt.Sprintf("%.3f", result.WorkpieceMass), Unit: "Kg"},
-			{Label: "Contact Area", Value: fmt.Sprintf("%.2f", result.ContactArea), Unit: "mm²"},
-			{Label: "Height Reduction", Value: fmt.Sprintf("%.2f", result.HeightReduction), Unit: "mm"},
+			{Label: "Зусилля кування", Value: fmt.Sprintf("%.2f", result.ForgingForce), Unit: "Н"},
+			{Label: "Тиск кування", Value: fmt.Sprintf("%.2f", result.ForgingPressure), Unit: "МПа"},
+			{Label: "Виконана робота", Value: fmt.Sprintf("%.2f", result.WorkDone), Unit: "Дж"},
+			{Label: "Потужність", Value: fmt.Sprintf("%.2f", result.Power), Unit: "кВт"},
+			{Label: "Швидкість деформ.", Value: fmt.Sprintf("%.4f", result.DeformationSpeed), Unit: "с⁻¹"},
+			{Label: "Ступінь деформації", Value: fmt.Sprintf("%.4f", result.StrainDegree)},
+			{Label: "Маса заготовки", Value: fmt.Sprintf("%.3f", result.WorkpieceMass), Unit: "кг"},
+			{Label: "Площа контакту", Value: fmt.Sprintf("%.2f", result.ContactArea), Unit: "мм²"},
+			{Label: "Зменшення висоти", Value: fmt.Sprintf("%.2f", result.HeightReduction), Unit: "мм"},
 		},
 	}
 
-	pdfBytes, err := pdf.GenerateForgingReport(reportData)
+	pdfBytes, err := pdf.GenerateForgingReport(reportData, "./fonts")
 	if err != nil {
 		http.Error(w, `{"error": "pdf generation failed"}`, http.StatusInternalServerError)
 		return
@@ -95,4 +107,18 @@ func ForgingHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(result)
+}
+
+func translateMaterial(s string) string {
+	if v, ok := materialNames[s]; ok {
+		return v
+	}
+	return s
+}
+
+func translateShape(s string) string {
+	if v, ok := shapeNames[s]; ok {
+		return v
+	}
+	return s
 }

@@ -1,28 +1,28 @@
 <template>
   <div class="space-y-6">
-    <h2 class="text-2xl font-semibold">Расчет параметров объемной штамповки / ковки</h2>
+    <h2 class="text-2xl font-semibold">Розрахунок параметрів об'ємного кування</h2>
 
     <form @submit.prevent="onSubmit" class="bg-white p-6 rounded shadow space-y-4">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium">Материал</label>
+          <label class="block text-sm font-medium">Матеріал</label>
           <select v-model="form.material" class="mt-1 w-full border rounded px-3 py-2">
             <option value="steel">Сталь</option>
-            <option value="aluminum">Алюминий</option>
-            <option value="copper">Медь</option>
+            <option value="aluminum">Алюміній</option>
+            <option value="copper">Мідь</option>
             <option value="titanium">Титан</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium">Форма заготовки</label>
+          <label class="block text-sm font-medium">Форма заготівлі</label>
           <select v-model="form.shape" class="mt-1 w-full border rounded px-3 py-2">
-            <option value="cylinder">Цилиндр</option>
-            <option value="rectangle">Прямоугольник</option>
+            <option value="cylinder">Циліндр</option>
+            <option value="rectangle">Прямокутник</option>
           </select>
         </div>
         <div>
           <label class="block text-sm font-medium">
-            {{ form.shape === 'cylinder' ? 'Диаметр D (мм)' : 'Сторона A (мм)' }}
+            {{ form.shape === 'cylinder' ? 'Діаметр D (мм)' : 'Сторона A (мм)' }}
           </label>
           <input v-model.number="form.dimension_a" type="number" step="1" min="1" class="mt-1 w-full border rounded px-3 py-2" />
         </div>
@@ -31,11 +31,11 @@
           <input v-model.number="form.dimension_b" type="number" step="1" min="1" class="mt-1 w-full border rounded px-3 py-2" />
         </div>
         <div>
-          <label class="block text-sm font-medium">Начальная высота H₀ (мм)</label>
+          <label class="block text-sm font-medium">Початкова висота H₀ (мм)</label>
           <input v-model.number="form.initial_height" type="number" step="1" min="1" class="mt-1 w-full border rounded px-3 py-2" />
         </div>
         <div>
-          <label class="block text-sm font-medium">Конечная высота H₁ (мм)</label>
+          <label class="block text-sm font-medium">Кінцева висота H₁ (мм)</label>
           <input v-model.number="form.final_height" type="number" step="0.1" min="1" class="mt-1 w-full border rounded px-3 py-2" />
         </div>
         <div>
@@ -43,22 +43,22 @@
           <input v-model.number="form.temperature" type="number" step="10" min="20" class="mt-1 w-full border rounded px-3 py-2" />
         </div>
         <div>
-          <label class="block text-sm font-medium">Коэффициент трения μ</label>
+          <label class="block text-sm font-medium">Коефіцієнт тертя μ</label>
           <input v-model.number="form.friction_coeff" type="number" step="0.05" min="0.05" max="0.8" class="mt-1 w-full border rounded px-3 py-2" />
-          <p class="text-xs text-gray-500 mt-1">Горячая ковка: 0.3–0.5, холодная: 0.1–0.2</p>
+          <p class="text-xs text-gray-500 mt-1">Гаряче кування: 0.3–0.5, холодна: 0.1–0.2</p>
         </div>
         <div class="md:col-span-2">
-          <label class="block text-sm font-medium">Скорость деформации (мм/с)</label>
+          <label class="block text-sm font-medium">Швидкість деформації (мм/с)</label>
           <input v-model.number="form.deformation_speed" type="number" step="1" min="1" class="mt-1 w-full border rounded px-3 py-2" />
-          <p class="text-xs text-gray-500 mt-1">Скорость движения пуансона / молота</p>
+          <p class="text-xs text-gray-500 mt-1">Швидкість руху пуансону / молота</p>
         </div>
       </div>
       <div class="flex gap-3">
         <button type="submit" :disabled="store.loading" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50">
-          {{ store.loading ? 'Расчет...' : 'Рассчитать' }}
+          {{ store.loading ? 'Розрахунок...' : 'Розрахувати' }}
         </button>
         <button type="button" @click="onDownloadPDF" :disabled="!store.result || pdfLoading" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50">
-          {{ pdfLoading ? 'Генерация...' : 'Скачать PDF' }}
+          {{ pdfLoading ? 'Генерація...' : 'Завантажити PDF' }}
         </button>
       </div>
     </form>
@@ -68,52 +68,52 @@
     </div>
 
     <div v-if="store.result" class="bg-white p-6 rounded shadow space-y-4">
-      <h3 class="text-lg font-semibold border-b pb-2">Результаты расчета</h3>
+      <h3 class="text-lg font-semibold border-b pb-2">Результати розрахунку</h3>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
         <div class="bg-slate-50 p-3 rounded">
-          <p class="text-gray-600">Усилие ковки</p>
+          <p class="text-gray-600">Зусилля кування</p>
           <p class="text-lg font-bold">{{ fmt(store.result.forging_force) }} Н</p>
           <p class="text-xs text-gray-500">≈ {{ (store.result.forging_force / 1000).toFixed(1) }} кН</p>
         </div>
         <div class="bg-slate-50 p-3 rounded">
-          <p class="text-gray-600">Удельное давление</p>
+          <p class="text-gray-600">Питомий тиск</p>
           <p class="text-lg font-bold">{{ fmt(store.result.forging_pressure) }} МПа</p>
         </div>
         <div class="bg-slate-50 p-3 rounded">
-          <p class="text-gray-600">Работа деформации</p>
+          <p class="text-gray-600">Робота деформації</p>
           <p class="text-lg font-bold">{{ fmt(store.result.work_done) }} Дж</p>
         </div>
         <div class="bg-slate-50 p-3 rounded">
-          <p class="text-gray-600">Мощность</p>
+          <p class="text-gray-600">Потужність</p>
           <p class="text-lg font-bold">{{ fmt(store.result.power) }} кВт</p>
         </div>
         <div class="bg-slate-50 p-3 rounded">
-          <p class="text-gray-600">Скорость деформации ε̇</p>
+          <p class="text-gray-600">Швидкість деформації ε̇</p>
           <p class="text-lg font-bold">{{ fmt(store.result.deformation_speed) }} с⁻¹</p>
         </div>
         <div class="bg-slate-50 p-3 rounded">
-          <p class="text-gray-600">Степень деформации</p>
+          <p class="text-gray-600">Ступінь деформації</p>
           <p class="text-lg font-bold">{{ fmt(store.result.strain_degree) }}</p>
         </div>
         <div class="bg-slate-50 p-3 rounded">
-          <p class="text-gray-600">Масса заготовки</p>
+          <p class="text-gray-600">Маса заготівлі</p>
           <p class="text-lg font-bold">{{ fmt(store.result.workpiece_mass) }} кг</p>
         </div>
         <div class="bg-slate-50 p-3 rounded">
-          <p class="text-gray-600">Площадь контакта</p>
+          <p class="text-gray-600">Площа контакту</p>
           <p class="text-lg font-bold">{{ fmt(store.result.contact_area) }} мм²</p>
         </div>
       </div>
 
       <div class="border-t pt-3 text-sm space-y-1">
-        <p><strong>Объем заготовки:</strong> {{ fmt(store.result.initial_volume) }} мм³</p>
-        <p><strong>Обжатие по высоте:</strong> {{ fmt(store.result.height_reduction) }} мм</p>
+        <p><strong>Об'єм заготівлі:</strong> {{ fmt(store.result.initial_volume) }} мм³</p>
+        <p><strong>Обтискання по висоті:</strong> {{ fmt(store.result.height_reduction) }} мм</p>
         <p v-if="form.shape === 'cylinder'">
-          <strong>Конечный диаметр:</strong> {{ fmt(store.result.final_diameter) }} мм
+          <strong>Кінцевий діаметр:</strong> {{ fmt(store.result.final_diameter) }} мм
         </p>
         <p v-else>
-          <strong>Конечные размеры:</strong> {{ fmt(store.result.final_side_a) }} × {{ fmt(store.result.final_side_b) }} мм
+          <strong>Кінцеві розміри:</strong> {{ fmt(store.result.final_side_a) }} × {{ fmt(store.result.final_side_b) }} мм
         </p>
       </div>
     </div>
