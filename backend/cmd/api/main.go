@@ -1,28 +1,29 @@
 package main
 
 import (
+	"MetalCalc/backend/internal/handlers"
+	"MetalCalc/backend/internal/storage"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-
-	"MetalCalc/backend/internal/handlers"
 )
 
 func main() {
+	storage.Seed()
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	// CORS
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-			if r.Method == "OPTIONS" {
+			if r.Method == http.MethodOptions {
 				w.WriteHeader(http.StatusOK)
 				return
 			}
@@ -37,6 +38,14 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"status":"ok"}`))
 	})
+
+	r.Get("/api/v1/materials", handlers.GetMaterialsHandler)
+	r.Post("/api/v1/materials", handlers.AddMaterialHandler)
+	r.Delete("/api/v1/materials/{id}", handlers.DeleteMaterialHandler)
+
+	r.Get("/api/v1/shapes", handlers.GetShapesHandler)
+	r.Post("/api/v1/shapes", handlers.AddShapeHandler)
+	r.Delete("/api/v1/shapes/{id}", handlers.DeleteShapeHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {
