@@ -10,6 +10,7 @@ export interface ForgeRequest {
     temperature: number
     friction_coeff: number
     deformation_speed: number
+    passes: number
 }
 
 export interface ForgeResponse {
@@ -27,6 +28,18 @@ export interface ForgeResponse {
     final_side_a: number
     final_side_b: number
     height_reduction: number
+    passes: number
+    pass_result: PassResult[]
+}
+
+export interface PassResult {
+    pass: number
+    height_start: number
+    height_end: number
+    force: number
+    pressure: number
+    work: number
+    contact_area: number
 }
 
 export async function calculateForging(params: ForgeRequest): Promise<ForgeResponse> {
