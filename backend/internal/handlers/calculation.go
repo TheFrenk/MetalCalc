@@ -3,6 +3,7 @@ package handlers
 import (
 	"MetalCalc/backend/internal/calculations/forging"
 	"MetalCalc/backend/internal/pdf"
+	"MetalCalc/backend/internal/storage"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -18,18 +19,7 @@ type ForgeRequest struct {
 	Temperature      float64 `json:"temperature"`
 	FrictionCoeff    float64 `json:"friction_coeff"`
 	DeformationSpeed float64 `json:"deformation_speed"`
-}
-
-var materialNames = map[string]string{
-	"steel":    "Сталь",
-	"aluminum": "Алюміній",
-	"copper":   "Мідь",
-	"titanium": "Титан",
-}
-
-var shapeNames = map[string]string{
-	"cylinder":  "Циліндр",
-	"rectangle": "Прямокутник",
+	Passes           int     `json:"passes"`
 }
 
 func ForgingPDFHandler(w http.ResponseWriter, r *http.Request) {
@@ -40,10 +30,16 @@ func ForgingPDFHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	params := forging.Params{
-		Material: req.Material, Shape: req.Shape, DimensionA: req.DimensionA,
-		DimensionB: req.DimensionB, InitialHeight: req.InitialHeight,
-		FinalHeight: req.FinalHeight, Temperature: req.Temperature,
-		FrictionCoeff: req.FrictionCoeff, DeformationSpeed: req.DeformationSpeed,
+		Material:         req.Material,
+		Shape:            req.Shape,
+		DimensionA:       req.DimensionA,
+		DimensionB:       req.DimensionB,
+		InitialHeight:    req.InitialHeight,
+		FinalHeight:      req.FinalHeight,
+		Temperature:      req.Temperature,
+		FrictionCoeff:    req.FrictionCoeff,
+		DeformationSpeed: req.DeformationSpeed,
+		Passes:           req.Passes,
 	}
 	result := forging.Calculate(params)
 
@@ -101,6 +97,7 @@ func ForgingHandler(w http.ResponseWriter, r *http.Request) {
 		Temperature:      req.Temperature,
 		FrictionCoeff:    req.FrictionCoeff,
 		DeformationSpeed: req.DeformationSpeed,
+		Passes:           req.Passes,
 	}
 
 	result := forging.Calculate(params)
@@ -110,15 +107,19 @@ func ForgingHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func translateMaterial(s string) string {
-	if v, ok := materialNames[s]; ok {
-		return v
+	for _, m := range storage.Global.GetMaterials() {
+		if m.Key == s {
+			return m.Name
+		}
 	}
 	return s
 }
 
 func translateShape(s string) string {
-	if v, ok := shapeNames[s]; ok {
-		return v
+	for _, sh := range storage.Global.GetShapes() {
+		if sh.Key == s {
+			return sh.Name
+		}
 	}
 	return s
 }

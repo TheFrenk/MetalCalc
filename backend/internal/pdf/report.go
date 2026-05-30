@@ -20,22 +20,20 @@ type ReportData struct {
 	Results []ParamRow
 }
 
-// drawSectionHeader малює заголовок секції з фоновою смугою
 func drawSectionHeader(pdf *fpdf.Fpdf, text string) {
-	pdf.SetFillColor(30, 80, 160)   // темно-синій фон
-	pdf.SetTextColor(255, 255, 255) // білий текст
+	pdf.SetFillColor(30, 80, 160)
+	pdf.SetTextColor(255, 255, 255)
 	pdf.SetFont("DejaVu", "B", 11)
 	pdf.CellFormat(0, 9, text, "", 1, "L", true, 0, "")
 	pdf.SetTextColor(30, 30, 30)
 	pdf.Ln(2)
 }
 
-// drawRow малює рядок таблиці з чергуванням кольорів
 func drawRow(pdf *fpdf.Fpdf, label, value string, even bool) {
 	if even {
-		pdf.SetFillColor(240, 245, 255) // світло-блакитний
+		pdf.SetFillColor(240, 245, 255)
 	} else {
-		pdf.SetFillColor(255, 255, 255) // білий
+		pdf.SetFillColor(255, 255, 255)
 	}
 
 	pdf.SetFont("DejaVu", "B", 10)
@@ -48,8 +46,6 @@ func drawRow(pdf *fpdf.Fpdf, label, value string, even bool) {
 func GenerateForgingReport(data ReportData, fontDir string) ([]byte, error) {
 	pdf := fpdf.New("P", "mm", "A4", "")
 
-	// Підключення TTF-шрифту з підтримкою UTF-8 (кирилиця)
-	// Розмістіть DejaVuSans.ttf та DejaVuSans-Bold.ttf у папці fonts/
 	pdf.AddUTF8Font("DejaVu", "", fontDir+"/DejaVuSans.ttf")
 	pdf.AddUTF8Font("DejaVu", "B", fontDir+"/DejaVuSans-Bold.ttf")
 
@@ -57,14 +53,12 @@ func GenerateForgingReport(data ReportData, fontDir string) ([]byte, error) {
 	pdf.SetAutoPageBreak(true, 15)
 	pdf.SetMargins(15, 15, 15)
 
-	// ── Шапка ──────────────────────────────────────────────
 	pdf.SetFillColor(15, 55, 130)
 	pdf.SetTextColor(255, 255, 255)
 	pdf.SetFont("DejaVu", "B", 18)
 	pdf.CellFormat(0, 16, data.Title, "", 1, "C", true, 0, "")
 	pdf.Ln(4)
 
-	// Дата генерації
 	pdf.SetFont("DejaVu", "", 9)
 	pdf.SetTextColor(100, 100, 100)
 	pdf.CellFormat(0, 6,
@@ -72,7 +66,6 @@ func GenerateForgingReport(data ReportData, fontDir string) ([]byte, error) {
 		"", 1, "R", false, 0, "")
 	pdf.Ln(6)
 
-	// ── Секція: Вхідні параметри ───────────────────────────
 	pdf.SetTextColor(30, 30, 30)
 	drawSectionHeader(pdf, "  Вхідні параметри")
 
@@ -85,7 +78,6 @@ func GenerateForgingReport(data ReportData, fontDir string) ([]byte, error) {
 	}
 	pdf.Ln(8)
 
-	// ── Секція: Результати розрахунків ─────────────────────
 	drawSectionHeader(pdf, "  Результати розрахунків")
 
 	for i, r := range data.Results {
@@ -97,7 +89,6 @@ func GenerateForgingReport(data ReportData, fontDir string) ([]byte, error) {
 	}
 	pdf.Ln(8)
 
-	// ── Підвал ─────────────────────────────────────────────
 	pdf.SetFont("DejaVu", "", 8)
 	pdf.SetTextColor(160, 160, 160)
 	pdf.SetDrawColor(200, 200, 200)
